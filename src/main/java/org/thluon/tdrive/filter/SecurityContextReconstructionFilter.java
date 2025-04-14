@@ -22,14 +22,12 @@ public class SecurityContextReconstructionFilter implements WebFilter {
     @Override
     @NonNull
     public Mono<Void> filter(ServerWebExchange exchange,@NonNull WebFilterChain chain) {
-        System.out.println("REACHED");
         String userId = exchange.getRequest().getHeaders().getFirst("X-User-Id");
         String userName = exchange.getRequest().getHeaders().getFirst("X-User-Name");
         String userRole = exchange.getRequest().getHeaders().getFirst("X-User-Role");
         if(userId != null ) {
             MyPrincipal principal = new MyPrincipal(UUID.fromString(userId), userName, userRole);
             Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, Collections.singletonList(new SimpleGrantedAuthority(principal.role().startsWith("ROLE_") ? principal.role() : "ROLE_" + principal.role())));
-            System.out.println(authentication);
             SecurityContext ctx = new SecurityContextImpl(authentication);
             return chain.filter(exchange).contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(ctx)));
         }
