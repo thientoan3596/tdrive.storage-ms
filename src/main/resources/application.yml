@@ -1,0 +1,21 @@
+application:
+    name: "storage-ms"
+    version: "1.0.0"
+    api:
+      endpoint: /api/storage
+      version: v1
+spring:
+  r2dbc:
+    pool:
+      enable: true
+      initial-size: 10
+      max-size: 20
+    url: ${R2DBC_URL:r2dbc:mysql://host.docker.internal:3306/storage}
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:changeInProd!}
+#logging:
+#  level:
+#    io.asyncer.r2dbc.mysql: INFO
+#    io.asyncer.r2dbc.mysql.QUERY: DEBUG
+#    org.springframework.data.r2dbc: DEBUG
+#    org.springframework.r2dbc: DEBUG

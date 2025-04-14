@@ -1,0 +1,38 @@
+[versions]
+java = "17"
+spring-boot = "3.3.10"
+spring-dependency-management = "1.1.7"
+spring-cloud = "2023.0.5"
+lombok="1.18.34"
+mapstruct="1.6.0"
+mapstruct-lombok-binding="0.2.0"
+jjwt="0.12.6"
+jakarta-validation-api="3.1.1"
+hibernate-validator="8.0.1.Final"
+spring-doc="2.6.0"
+asyncer-r2dbc="1.4.0"
+jug="5.1.0"
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot"  }
+spring-dependency-management = {id="io.spring.dependency-management",version.ref="spring-dependency-management"}
+[libraries]
+mapstruct={module="org.mapstruct:mapstruct",version.ref="mapstruct"}
+mapstruct-prossessor={module="org.mapstruct:mapstruct-processor",version.ref="mapstruct"}
+lombok={module="org.projectlombok:lombok",version.ref="lombok"}
+lombok-mapstruct-binding={module="org.projectlombok:lombok-mapstruct-binding",version.ref="mapstruct-lombok-binding"}
+jug = { module = "com.fasterxml.uuid:java-uuid-generator", version.ref = "jug" }
+spring-cloud-dependencies = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
+jjwt-core={group="io.jsonwebtoken",name="jjwt",version.ref="jjwt"}
+jjwt-impl={group="io.jsonwebtoken",name="jjwt-impl",version.ref="jjwt"}
+jjwt-jackson={group="io.jsonwebtoken",name="jjwt-jackson",version.ref="jjwt"}
+jakarta-validation-api={module="jakarta.validation:jakarta.validation-api",version.ref="jakarta-validation-api"}
+hibernate-validator={module="org.hibernate.validator:hibernate-validator",version.ref="hibernate-validator"}
+springdoc-webflux={module="org.springdoc:springdoc-openapi-starter-webflux-ui",version.ref="spring-doc"}
+spring-r2dbc= {module="org.springframework.boot:spring-boot-starter-data-r2dbc"}
+asyncer-r2dbc= {module="io.asyncer:r2dbc-mysql",version.ref="asyncer-r2dbc"}
+[bundles]
+jjwt=["jjwt-core","jjwt-impl","jjwt-jackson"]
+hibernate-jakarta-validator=["jakarta-validation-api","hibernate-validator"]
+mapstruct-lombok-compile=[ "mapstruct","lombok"]
+mapstruct-lombok-annotation-processor=[ "mapstruct-prossessor","lombok","lombok-mapstruct-binding"]
+r2dbc=["spring-r2dbc","asyncer-r2dbc"]
