@@ -91,7 +91,7 @@ public interface StorageAPI {
             content = @Content(mediaType = "application/json", schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = StorageItemResponseDTO.class)))
     @ApiResponse(responseCode = "404", description = "Not found",
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorResponseDTO.class))))
-    @GetMapping("/{id}")
+    @GetMapping("/root")
     default Mono<ResponseEntity<StorageItemResponseDTO>> findRootFolder(
             @Parameter(name = "depth", description = "depth", schema = @Schema(type = "integer", example = "1", defaultValue = "1"))
             @RequestParam(value = "depth", defaultValue = "1") Integer depth,

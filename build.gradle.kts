@@ -12,6 +12,7 @@ java {
 }
 
 dependencies {
+    implementation(platform(libs.spring.cloud.dependencies))
     implementation(libs.bundles.jjwt)
     implementation(libs.bundles.hibernate.jakarta.validator)
     implementation(libs.springdoc.webflux)
@@ -19,6 +20,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation(libs.jug)
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation(libs.bundles.r2dbc)
     compileOnly(libs.bundles.mapstruct.lombok.compile)
     annotationProcessor(libs.bundles.mapstruct.lombok.annotation.processor)
@@ -29,3 +31,13 @@ dependencies {
 tasks.bootJar {
     archiveFileName.set("storage-ms.jar")
 }
+tasks.bootRun{
+  doFirst {
+        file(".env").readLines().forEach {
+            val parts = it.trim().split("=", limit = 2)
+            if (parts.size == 2 && parts[0].isNotEmpty()) {
+                val (key, value) = parts
+                environment(key, value)
+            }
+        }
+    }}

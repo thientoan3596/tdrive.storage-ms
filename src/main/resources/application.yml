@@ -1,10 +1,14 @@
+server:
+  port: ${SERVER_PORT:-8080}
 application:
-    name: "storage-ms"
-    version: "1.0.0"
-    api:
-      endpoint: /api/storage
-      version: v1
+  name: "storage-ms"
+  version: "1.0.0"
+  api:
+    endpoint: /api/storage
+    version: v1
 spring:
+  application:
+    name: storage-ms
   r2dbc:
     pool:
       enable: true
@@ -13,9 +17,12 @@ spring:
     url: ${R2DBC_URL:r2dbc:mysql://host.docker.internal:3306/storage}
     username: root
     password: ${MYSQL_ROOT_PASSWORD:changeInProd!}
-#logging:
-#  level:
-#    io.asyncer.r2dbc.mysql: INFO
-#    io.asyncer.r2dbc.mysql.QUERY: DEBUG
-#    org.springframework.data.r2dbc: DEBUG
-#    org.springframework.r2dbc: DEBUG
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_URL:http://host.docker.internal:8761/eureka/}
+    renewal-interval-in-seconds: 30 # Heartbeat every 30 seconds
+    instance-info-replication-interval-seconds: 60
+    lease-expiration-duration-in-seconds: 90
+  instance:
+    prefer-ip-address: true

@@ -95,6 +95,7 @@ public class StorageItemServiceImpl implements StorageService {
                         Mono.defer(() -> {
                             StorageItem root = StorageItem.builder()
                                     .owner(user)
+                                    .name("root")
                                     .parentId(null)
                                     .size(0L)
                                     .build();
