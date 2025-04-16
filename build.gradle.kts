@@ -10,7 +10,6 @@ java {
         languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
     }
 }
-
 dependencies {
     implementation(platform(libs.spring.cloud.dependencies))
     implementation(libs.bundles.jjwt)
@@ -18,6 +17,8 @@ dependencies {
     implementation(libs.springdoc.webflux)
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation(libs.jug)
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
@@ -31,13 +32,21 @@ dependencies {
 tasks.bootJar {
     archiveFileName.set("storage-ms.jar")
 }
-tasks.bootRun{
-  doFirst {
+tasks.bootRun {
+    doFirst {
         file(".env").readLines().forEach {
-            val parts = it.trim().split("=", limit = 2)
-            if (parts.size == 2 && parts[0].isNotEmpty()) {
-                val (key, value) = parts
-                environment(key, value)
+            // Trim the line, remove everything after the first # and trim again
+            val cleanLine = it.trim().split("#")[0].trim()
+            
+            // Process if the line is not empty
+            if (cleanLine.isNotEmpty()) {
+                val parts = cleanLine.split("=", limit = 2)
+                if (parts.size == 2 && parts[0].isNotEmpty()) {
+                    val (key, value) = parts
+                    environment(key, value)
+                }
             }
         }
-    }}
+    }
+}
+

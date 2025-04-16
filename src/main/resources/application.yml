@@ -1,28 +1,36 @@
 server:
-  port: ${SERVER_PORT:-8080}
+  port: ${SERVER_PORT:8080}
 application:
-  name: "storage-ms"
-  version: "1.0.0"
   api:
-    endpoint: /api/storage
-    version: v1
+    endpoint: ${API_ENDPOINT:-/api/storage}
+    version: ${API_VERSION:-v1}
+    secure: ${API_DOC_SECURE:false}
 spring:
   application:
-    name: storage-ms
+    name: ${APPLICATION_NAME:-storage-ms}
   r2dbc:
     pool:
-      enable: true
-      initial-size: 10
-      max-size: 20
-    url: ${R2DBC_URL:r2dbc:mysql://host.docker.internal:3306/storage}
-    username: root
-    password: ${MYSQL_ROOT_PASSWORD:changeInProd!}
+      enable: ${DB_POOL_ENABLE:true}
+      initial-size: ${DB_POOL_INIT_SIZE:10}
+      max-size: ${DB_POOL_MAX_SIZE:20}
+    url: ${DB_URL:-r2dbc:mysql://host.docker.internal:3306/storage}
+    username: ${DB_USER:-root}
+    password: ${DB_PASSWORD:-changeInProd!}
 eureka:
   client:
+    enabled: ${EUREKA_CLIENT_ENABLE:true}
     serviceUrl:
-      defaultZone: ${EUREKA_SERVER_URL:http://host.docker.internal:8761/eureka/}
-    renewal-interval-in-seconds: 30 # Heartbeat every 30 seconds
-    instance-info-replication-interval-seconds: 60
-    lease-expiration-duration-in-seconds: 90
+      defaultZone: ${EUREKA_SERVER_URL:-http://host.docker.internal:8761/eureka/}
+    renewal-interval-in-seconds: ${EUREKA_CLIENT_HEARTBEAT:30}
+    instance-info-replication-interval-seconds: ${EUREKA_CLIENT_INSTANCE_REPLICATION_INTERVAL:60}
+    lease-expiration-duration-in-seconds: ${EUREKA_CLIENT_LEASE_EXPIRATION_DURATION:90}
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDR:true}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,env
+  endpoint:
+    env:
+      show-values: ALWAYS
