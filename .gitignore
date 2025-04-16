@@ -13,4 +13,4 @@ mysql
 .settings/
 .project
 *.java~
-docker-compose.yml
+*.sql
