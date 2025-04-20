@@ -1,5 +1,6 @@
 package org.thluon.tdrive.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,16 +10,16 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.thluon.tdrive.filter.SecurityContextReconstructionFilter;
-import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-  @Value("${application.api.secure}")
-  private Boolean secureApiDocEndpoints;
-
   @Value("#{'${SECURE_ACTUATORS:}'.split(',')}")
   private String[] SECURE_ACTUATORS;
+
+  @Value("${SPRINGDOC_SECURE}")
+  private Boolean secureApiDocEndpoints;
 
   @Bean
   SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -26,24 +27,22 @@ public class SecurityConfig {
         .authorizeExchange(
             exchange ->
                 exchange
-                    .pathMatchers("actuator/health", "actuator/env")
+                    .pathMatchers("/actuator/health", "/actuator/env")
                     .permitAll()
                     .pathMatchers("/swagger-ui/**", "/webjars/swagger-ui/**", "/v3/api-doc/**")
                     .access(
                         (mono, context) ->
-                            Mono.just(
-                                new AuthorizationDecision(
-                                    !secureApiDocEndpoints
-                                        || (mono.blockOptional()
-                                            .map(
-                                                auth ->
-                                                    auth.isAuthenticated()
-                                                        && auth.getAuthorities().stream()
-                                                            .anyMatch(
-                                                                a ->
-                                                                    a.getAuthority()
-                                                                        .equals("ROLE_Developer")))
-                                            .orElse(false)))))
+                            mono.map(
+                                    auth ->
+                                        !secureApiDocEndpoints
+                                            || (auth.isAuthenticated()
+                                                && auth.getAuthorities().stream()
+                                                    .anyMatch(
+                                                        a ->
+                                                            a.getAuthority()
+                                                                .equals("ROLE_Developer"))))
+                                .map(AuthorizationDecision::new)
+                                .defaultIfEmpty(new AuthorizationDecision(false)))
                     .pathMatchers(SECURE_ACTUATORS)
                     .hasRole("ROLE_SYSTEM_ADMIN")
                     .anyExchange()

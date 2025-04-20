@@ -1,31 +1,27 @@
 server:
   port: ${SERVER_PORT:8080}
-application:
-  api:
-    endpoint: ${API_ENDPOINT:-/api/storage}
-    version: ${API_VERSION:-v1}
-    secure: ${API_DOC_SECURE:false}
+  forward-headers-strategy: framework
 spring:
   application:
-    name: ${APPLICATION_NAME:-storage-ms}
+    name: ${SPRING_APPLICATION_NAME:storage-ms}
   r2dbc:
     pool:
       enable: ${DB_POOL_ENABLE:true}
       initial-size: ${DB_POOL_INIT_SIZE:10}
       max-size: ${DB_POOL_MAX_SIZE:20}
     url: ${DB_URL:-r2dbc:mysql://host.docker.internal:3306/storage}
-    username: ${DB_USER:-root}
-    password: ${DB_PASSWORD:-changeInProd!}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:changeInProd!}
 eureka:
   client:
     enabled: ${EUREKA_CLIENT_ENABLE:true}
     serviceUrl:
-      defaultZone: ${EUREKA_SERVER_URL:-http://host.docker.internal:8761/eureka/}
+      defaultZone: ${EUREKA_SERVER_URL:http://host.docker.internal:8761/eureka/}
     renewal-interval-in-seconds: ${EUREKA_CLIENT_HEARTBEAT:30}
     instance-info-replication-interval-seconds: ${EUREKA_CLIENT_INSTANCE_REPLICATION_INTERVAL:60}
     lease-expiration-duration-in-seconds: ${EUREKA_CLIENT_LEASE_EXPIRATION_DURATION:90}
   instance:
-    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDR:true}
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 management:
   endpoints:
     web:
@@ -34,3 +30,7 @@ management:
   endpoint:
     env:
       show-values: ALWAYS
+springdoc:
+  secure: ${SPRINGDOC_SECURE:false}
+  cache:
+    disabled: true

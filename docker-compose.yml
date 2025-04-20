@@ -32,7 +32,7 @@ services:
       dockerfile: Dockerfile
     environment:
       # EUREKA_SERVER_URL: "http://${SERVICE_REGISTRY_HOSTNAME:-host.docker.internal}:${SERVICE_REGISTRY_PORT:-8761}/eureka/"
-      SERVER_PORT: ${SERVERL_PORT:-8080}
+      SERVER_PORT: ${SERVER_PORT:-8080}
       DB_URL: "r2dbc:mysql://mysql-storage-local-test:3306/${DB_NAME}"
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
