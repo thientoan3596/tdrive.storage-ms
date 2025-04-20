@@ -49,7 +49,7 @@ public class SecurityConfig {
                                       .defaultIfEmpty(new AuthorizationDecision(false))
                                   : Mono.just(new AuthorizationDecision(true)))
                       .anyExchange()
-                      .permitAll();
+                      .authenticated();
               if (SECURE_ACTUATORS.length != 0) {
                 spec.pathMatchers(SECURE_ACTUATORS).hasRole("ROLE_SYSTEM_ADMIN");
               }
