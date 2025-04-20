@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "file_service")
+@ConfigurationProperties(prefix = "file-service")
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FileServiceConf {
