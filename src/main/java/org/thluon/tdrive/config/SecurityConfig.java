@@ -31,6 +31,8 @@ public class SecurityConfig {
             exchange -> {
               var spec =
                   exchange
+                      .anyExchange()
+                      .authenticated()
                       .pathMatchers("actuator/health", "actuator/env")
                       .permitAll()
                       .pathMatchers("/swagger-ui/**", "/webjars/swagger-ui/**", "/v3/api-doc/**")
@@ -47,9 +49,7 @@ public class SecurityConfig {
                                                                   .equals("ROLE_Developer")))
                                       .map(AuthorizationDecision::new)
                                       .defaultIfEmpty(new AuthorizationDecision(false))
-                                  : Mono.just(new AuthorizationDecision(true)))
-                      .anyExchange()
-                      .authenticated();
+                                  : Mono.just(new AuthorizationDecision(true)));
               if (SECURE_ACTUATORS.length != 0) {
                 spec.pathMatchers(SECURE_ACTUATORS).hasRole("ROLE_SYSTEM_ADMIN");
               }
