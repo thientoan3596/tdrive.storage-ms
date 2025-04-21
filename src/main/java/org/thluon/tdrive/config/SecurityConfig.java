@@ -28,32 +28,37 @@ public class SecurityConfig {
   SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
     http.csrf(ServerHttpSecurity.CsrfSpec::disable)
         .authorizeExchange(
-            exchange -> {
-              var spec =
-                  exchange
-                      .anyExchange()
-                      .authenticated()
-                      .pathMatchers("actuator/health", "actuator/env")
-                      .permitAll()
-                      .pathMatchers("/swagger-ui/**", "/webjars/swagger-ui/**", "/v3/api-doc/**")
-                      .access(
-                          (mono, context) ->
-                              secureApiDocEndpoints
-                                  ? mono.map(
-                                          auth ->
-                                              auth.isAuthenticated()
-                                                  && auth.getAuthorities().stream()
-                                                      .anyMatch(
-                                                          a ->
-                                                              a.getAuthority()
-                                                                  .equals("ROLE_Developer")))
-                                      .map(AuthorizationDecision::new)
-                                      .defaultIfEmpty(new AuthorizationDecision(false))
-                                  : Mono.just(new AuthorizationDecision(true)));
-              if (SECURE_ACTUATORS.length != 0) {
-                spec.pathMatchers(SECURE_ACTUATORS).hasRole("ROLE_SYSTEM_ADMIN");
-              }
-            });
+            exchange ->
+                exchange
+                    .pathMatchers("actuator/health", "actuator/env")
+                    .permitAll()
+                    .pathMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/webjars/swagger-ui/**",
+                        "/webjars/swagger-ui/index.html",
+                        "/v3/api-docs/**")
+                    // .permitAll());
+                    .access(
+                        (mono, context) ->
+                            secureApiDocEndpoints
+                                ? mono.map(
+                                        auth ->
+                                            auth.isAuthenticated()
+                                                && auth.getAuthorities().stream()
+                                                    .anyMatch(
+                                                        a ->
+                                                            a.getAuthority()
+                                                                .equals("ROLE_Developer")))
+                                    .map(AuthorizationDecision::new)
+                                    .defaultIfEmpty(new AuthorizationDecision(false))
+                                : Mono.just(new AuthorizationDecision(true)))
+                    .anyExchange()
+                    .authenticated());
+    // if (SECURE_ACTUATORS.length != 0) {
+    //  spec.pathMatchers(SECURE_ACTUATORS).hasRole("ROLE_SYSTEM_ADMIN");
+    // }
+    // });
     return http.build();
   }
 }

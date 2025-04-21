@@ -24,6 +24,7 @@ public class SecurityContextReconstructionFilter implements WebFilter {
     String userId = exchange.getRequest().getHeaders().getFirst("X-User-Id");
     String userName = exchange.getRequest().getHeaders().getFirst("X-User-Name");
     String userRole = exchange.getRequest().getHeaders().getFirst("X-User-Role");
+    System.out.println("reconstructing .. ");
     UUID id = null;
     if (userId != null && !userId.isEmpty()) {
       try {
