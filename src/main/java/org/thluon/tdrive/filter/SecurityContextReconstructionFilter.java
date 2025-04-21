@@ -3,6 +3,8 @@ package org.thluon.tdrive.filter;
 import java.util.Collections;
 import java.util.UUID;
 import lombok.NonNull;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,6 +19,7 @@ import org.thluon.tdrive.security.MyPrincipal;
 import reactor.core.publisher.Mono;
 
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityContextReconstructionFilter implements WebFilter {
   @Override
   @NonNull
@@ -24,7 +27,6 @@ public class SecurityContextReconstructionFilter implements WebFilter {
     String userId = exchange.getRequest().getHeaders().getFirst("X-User-Id");
     String userName = exchange.getRequest().getHeaders().getFirst("X-User-Name");
     String userRole = exchange.getRequest().getHeaders().getFirst("X-User-Role");
-    System.out.println("reconstructing .. ");
     UUID id = null;
     if (userId != null && !userId.isEmpty()) {
       try {
