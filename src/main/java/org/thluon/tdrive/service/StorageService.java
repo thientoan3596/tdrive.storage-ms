@@ -24,7 +24,7 @@ public interface StorageService {
      * @throws EntityNotFoundException if the parent id is not found (or is not owner)
      */
     default Mono<StorageItemResponseDTO> insertNewFile(
-            @NonNull Mono<FilePart> filePartMono,
+            @NonNull FilePart filePartMono,
             @NonNull UUID parentId,
             @NonNull UUID userId
     )
@@ -36,11 +36,11 @@ public interface StorageService {
      * Inserts a folder into storage.
      * Create metadata for the folder and save to database
      *
-     * @param requestMono the Mono containing the FolderInsertDTO to be inserted
+     * @param request the Mono containing the FolderInsertDTO to be inserted
      * @return a Mono containing the inserted StorageItemResponseDTO (depth 0)
      * @throws EntityNotFoundException if the parent id is not found (or is not owner)
      */
-    default Mono<StorageItemResponseDTO> insertFolder(@NonNull Mono<FolderInsertDTO> requestMono,@NonNull UUID userId) throws EntityNotFoundException {
+    default Mono<StorageItemResponseDTO> insertFolder(@NonNull FolderInsertDTO request,@NonNull UUID userId) throws EntityNotFoundException {
         throw new IllegalStateException("Not yet implemented");
     }
 

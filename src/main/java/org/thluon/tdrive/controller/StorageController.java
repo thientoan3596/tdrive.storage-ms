@@ -1,6 +1,5 @@
 package org.thluon.tdrive.controller;
 
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
@@ -8,27 +7,29 @@ import org.springframework.web.bind.annotation.RestController;
 import org.thluon.tdrive.dto.FolderInsertDTO;
 import org.thluon.tdrive.dto.StorageItemResponseDTO;
 import org.thluon.tdrive.security.MyPrincipal;
-import org.thluon.tdrive.service.StorageItemServiceImpl;
+import org.thluon.tdrive.service.StorageService;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 public class StorageController implements StorageAPI {
-  private final StorageItemServiceImpl storageItemService;
+  private final StorageService storageItemService;
 
   // region CREATE
   @Override
   public Mono<ResponseEntity<StorageItemResponseDTO>> insertFolder(
-      Mono<FolderInsertDTO> requestMono, MyPrincipal myPrincipal) {
-    return storageItemService.insertFolder(requestMono, myPrincipal.id()).map(ResponseEntity::ok);
+          Mono<FolderInsertDTO> requestMono, MyPrincipal myPrincipal) {
+    return requestMono.flatMap(request->storageItemService.insertFolder(request, myPrincipal.id())).map(ResponseEntity::ok);
   }
 
   @Override
   public Mono<ResponseEntity<StorageItemResponseDTO>> insertFile(
       Mono<FilePart> filePartMono, String parent, MyPrincipal myPrincipal) {
-    return storageItemService
-        .insertNewFile(filePartMono, UUID.fromString(parent), myPrincipal.id())
-        .map(ResponseEntity::ok);
+    return filePartMono
+            .flatMap(filePart -> storageItemService.insertNewFile(filePart, UUID.fromString(parent), myPrincipal.id()))
+            .map(ResponseEntity::ok);
   }
 
   @Override

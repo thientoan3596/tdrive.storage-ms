@@ -40,9 +40,11 @@ public interface StorageAPI {
             content = @Content(mediaType = "application/json", schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = FolderInsertDTO.class)))
     @ApiResponse(responseCode = "403", description = "Bad request",
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorResponseDTO.class))))
+    @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorResponseDTO.class))))
     @PostMapping("/folder")
     default Mono<ResponseEntity<StorageItemResponseDTO>> insertFolder(
-            @Valid @RequestBody Mono<FolderInsertDTO> requestMono,
+            @RequestBody @Valid Mono<FolderInsertDTO> requestMono,
             @AuthenticationPrincipal MyPrincipal myPrincipal
     ) {
         throw new IllegalStateException("Method not implemented");
