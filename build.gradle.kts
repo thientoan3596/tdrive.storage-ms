@@ -33,6 +33,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+    testImplementation("com.google.jimfs:jimfs:1.1")
+    testImplementation("io.projectreactor:reactor-test:3.7.5")
     constraints {
         implementation("com.thoughtworks.xstream:xstream:1.4.21")
         implementation("commons-io:commons-io:2.14.0")
