@@ -1,13 +1,19 @@
 package org.thluon.tdrive.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.RestController;
 import org.thluon.tdrive.dto.FolderInsertDTO;
 import org.thluon.tdrive.dto.StorageItemResponseDTO;
+import org.thluon.tdrive.entity.EType;
 import org.thluon.tdrive.security.MyPrincipal;
+import org.thluon.tdrive.service.ReactiveFileService;
 import org.thluon.tdrive.service.StorageService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -16,6 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StorageController implements StorageAPI {
   private final StorageService storageItemService;
+  private final ReactiveFileService reactiveFileService;
 
   // region CREATE
   @Override
@@ -40,6 +47,26 @@ public class StorageController implements StorageAPI {
   // endregion CREATE
 
   // region READ
+
+
+  @Override
+  public Mono<ResponseEntity<Flux<DataBuffer>>> downloadItem(String id, MyPrincipal myPrincipal) {
+    return storageItemService
+            .findExactById(UUID.fromString(id), myPrincipal.id())
+            .flatMap(i->{
+              if(i.getType() == EType.File)
+                return Mono.just(
+                        ResponseEntity.ok()
+                                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+i.getName()+(i.getExtension()!=null?"."+i.getExtension():"" )+"\"")
+                                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                                .body(reactiveFileService.streamFile(i.getId().toString())));
+              return Mono.just(
+                      ResponseEntity.ok()
+                              .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+i.getName()+".zip\"")
+                              .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                              .body(reactiveFileService.streamFile(i.getId().toString())));
+            });
+  }
 
   @Override
   public Mono<ResponseEntity<StorageItemResponseDTO>> findRootFolder(

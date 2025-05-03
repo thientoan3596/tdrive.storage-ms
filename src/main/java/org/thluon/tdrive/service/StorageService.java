@@ -2,6 +2,7 @@ package org.thluon.tdrive.service;
 
 import com.github.thientoan3596.exception.EntityNotFoundException;
 import lombok.NonNull;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.codec.multipart.FilePart;
 import org.thluon.tdrive.dto.FolderInsertDTO;
 import org.thluon.tdrive.dto.StorageItemResponseDTO;
@@ -31,7 +32,6 @@ public interface StorageService {
     throws EntityNotFoundException {
         throw new IllegalStateException("Not yet implemented");
     }
-
     /**
      * Inserts a folder into storage.
      * Create metadata for the folder and save to database
@@ -107,7 +107,7 @@ public interface StorageService {
     default Flux<StorageItemResponseDTO> findByName(@NonNull String name) {
         throw new IllegalStateException("Not yet implemented");
     }
-
+    default Flux<DataBuffer> streamItem(@NonNull UUID id,@NonNull UUID user) {throw new IllegalStateException("Not yet implemented");}
     /**
      * Check if storage item with the given id exists.
      *
@@ -115,11 +115,7 @@ public interface StorageService {
      * @return a Mono containing true if the item exists, false otherwise
      */
     default Mono<Boolean> existsById(@NonNull UUID id) {throw new IllegalStateException("Not yet implemented");}
-
     default Mono<Boolean> isEmpty(@NonNull UUID id) {throw new IllegalStateException("Not yet implemented");}
-
-
-
     default Mono<Void> deleteById(@NonNull UUID id,Boolean recursive,UUID userId ) throws EntityNotFoundException {
         throw new IllegalStateException("Not yet implemented");
     }

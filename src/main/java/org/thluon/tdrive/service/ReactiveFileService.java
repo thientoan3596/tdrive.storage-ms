@@ -1,10 +1,14 @@
 package org.thluon.tdrive.service;
 
 import lombok.NonNull;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.codec.multipart.FilePart;
+import org.thluon.tdrive.dto.PathEntry;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 public interface ReactiveFileService {
 
@@ -29,6 +33,8 @@ public interface ReactiveFileService {
     default Mono<Void> deleteFile(@NonNull String fileName){throw new IllegalStateException("Not yet implemented");}
 
 
+    default Flux<DataBuffer> streamFile(@NonNull String fileName){throw new IllegalStateException("Not yet implemented");}
+    default Flux<DataBuffer> streamZip(@NonNull List<PathEntry> paths) {throw new IllegalStateException("Not yet implemented");}
     /**
      * Sanitize fileName to remove illegal characters (path traversal, etc.)
      */

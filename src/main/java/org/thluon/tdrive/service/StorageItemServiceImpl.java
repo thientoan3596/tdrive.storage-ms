@@ -4,9 +4,11 @@ import com.fasterxml.uuid.Generators;
 import com.github.thientoan3596.exception.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.thluon.tdrive.dto.FolderInsertDTO;
+import org.thluon.tdrive.dto.PathEntry;
 import org.thluon.tdrive.dto.StorageItemResponseDTO;
 import org.thluon.tdrive.entity.EType;
 import org.thluon.tdrive.entity.StorageItem;
@@ -25,6 +27,7 @@ public class StorageItemServiceImpl implements StorageService {
     private final StorageItemRepository storageItemRepository;
     private final StorageItemMapper storageItemMapper;
     private final ReactiveFileService reactiveFileService;
+
 
     @Override
     public Mono<StorageItemResponseDTO> insertNewFile(
@@ -69,10 +72,6 @@ public class StorageItemServiceImpl implements StorageService {
                             .then(Mono.defer(() -> storageItemRepository.findById(storageItem.getId(), userId)))
                             .map(storageItemMapper::toStorageItemResponseDTO);
                 });
-//        StorageItem storageItem = storageItemMapper.toStorageItem(request, userId);
-//        return storageItemRepository.insert(storageItem)
-//                .then(Mono.defer(() -> storageItemRepository.findById(storageItem.getId(), userId)))
-//                .map(storageItemMapper::toStorageItemResponseDTO);
     }
 
     @Override
@@ -171,6 +170,55 @@ public class StorageItemServiceImpl implements StorageService {
                                         StorageItem.class.getName(),
                                         id.toString())))
                 .map(storageItemMapper::toStorageItemResponseDTO);
+    }
+
+    @Override
+    public Flux<DataBuffer> streamItem(@NonNull UUID id, @NonNull UUID user) throws EntityNotFoundException {
+        return storageItemRepository.findAllDescendantsById(id, user)
+                .switchIfEmpty(
+                        Mono.error(
+                                new EntityNotFoundException(
+                                        "No file or folder with id [" + id + "]",
+                                        "id",
+                                        StorageItem.class.getName(),
+                                        id.toString())))
+                .collectList()
+                .flatMapMany(items -> {
+                    if (items.get(0).getType().equals(EType.File))
+                        return reactiveFileService.streamFile(items.get(0).getId().toString());
+                    Map<UUID, List<StorageItem>> parentMap = new HashMap<>();
+                    for (StorageItem item : items) {
+                        parentMap.computeIfAbsent(item.getParentId(), k -> new ArrayList<>()).add(item);
+                    }
+                    List<PathEntry> paths = new ArrayList<>();
+                    Deque<Map.Entry<StorageItem, String>> stack = new ArrayDeque<>();
+                    StorageItem root = items.get(0); // Take the first item as root
+                    stack.push(new AbstractMap.SimpleEntry<>(root, root.getName()));
+                    while (!stack.isEmpty()) {
+                        Map.Entry<StorageItem, String> entry = stack.pop();
+                        StorageItem node = entry.getKey();
+                        String path = entry.getValue();
+
+                        List<StorageItem> children = parentMap.get(node.getId());
+                        boolean isFile = node.getType().equals(EType.File);
+                        boolean isEmptyFolder = node.getType().equals(EType.Folder) && children.isEmpty();
+                        if (isFile) {
+                            if (!node.getExtension().isBlank())
+                                paths.add(new PathEntry(path + "." + node.getExtension(), node.getId().toString()));
+                            else
+                                paths.add(new PathEntry(path, node.getId().toString()));
+                        } else if (isEmptyFolder) {
+                            paths.add(new PathEntry(path, null));
+                        } else {
+                            ListIterator<StorageItem> iter = children.listIterator(children.size());
+                            while (iter.hasPrevious()) {
+                                StorageItem child = iter.previous();
+                                stack.push(new AbstractMap.SimpleEntry<>(child, path + "/" + child.getName()));
+                            }
+                        }
+                    }
+                    return reactiveFileService.streamZip(paths);
+                });
     }
 
     @Override

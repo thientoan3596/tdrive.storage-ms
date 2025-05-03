@@ -25,6 +25,7 @@ public interface StorageItemRepository {
      */
 
     Flux<StorageItem> findByIdWithDepth(UUID id, UUID owner, int maxDepth);
+    Flux<StorageItem> findAllDescendantsById(UUID id, UUID owner);
 
     Mono<StorageItem> findById(UUID id,UUID owner);
     Flux<StorageItem> findAll();

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
@@ -22,6 +23,7 @@ import org.thluon.tdrive.dto.FolderInsertDTO;
 import org.thluon.tdrive.dto.StorageItemInsertDTO;
 import org.thluon.tdrive.dto.StorageItemResponseDTO;
 import org.thluon.tdrive.security.MyPrincipal;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Tag(name = "Storage API")
@@ -119,6 +121,22 @@ public interface StorageAPI {
         throw new IllegalStateException("Method not implemented");
     }
     //endregion READ /{id}?[depth=1]
+    //region GET /download/{id}
+
+    @Operation(summary = "Download file/folder")
+    @ApiResponse(responseCode = "200", description = "Downloaded",
+            content = @Content(mediaType = "application/json", schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = StorageItemResponseDTO.class)))
+    @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorResponseDTO.class))))
+    @GetMapping("/download/{id}")
+    default Mono<ResponseEntity<Flux<DataBuffer>>> downloadItem(
+            @Parameter(name = "id", description = "id", schema = @Schema(type = "integer", example = "1"), in = ParameterIn.PATH, required = true)
+            @PathVariable String id,
+            @AuthenticationPrincipal MyPrincipal myPrincipal
+    ) {
+        throw new IllegalStateException("Method not implemented");
+    }
+    //endregion  GET /download/{id}
     //endregion READ
 
     //region UPDATE

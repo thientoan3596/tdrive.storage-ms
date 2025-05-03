@@ -58,6 +58,29 @@ public class StorageItemRepositoryImpl implements StorageItemRepository {
     }
 
     @Override
+    public Flux<StorageItem> findAllDescendantsById(UUID id,UUID owner) {
+        return template.getDatabaseClient()
+                .sql("""
+                            WITH RECURSIVE item_tree AS (
+                                SELECT id, name, type, size, extension, parent_id, owner, created_at, updated_at
+                                FROM storage_item
+                                WHERE id = :id AND owner = :owner
+                                UNION ALL
+                                SELECT si.id, si.name, si.type, si.size, si.extension, si.parent_id, si.owner, si.created_at, si.updated_at
+                                FROM storage_item si
+                                JOIN item_tree it ON si.parent_id = it.id
+                                WHERE si.owner = :owner
+                            )
+                            SELECT id, name, type, size, extension, parent_id, owner, created_at, updated_at
+                            FROM item_tree
+                        """)
+                .bind("id", UUIDToBytesConverter.CONVERT(id))
+                .bind("owner", UUIDToBytesConverter.CONVERT(owner))
+                .map((row, meta) -> template.getConverter().read(StorageItem.class, row))
+                .all();
+    }
+
+    @Override
     public Mono<StorageItem> findById(UUID id, UUID owner) {
         return template.selectOne(
                 Query.query(Criteria.where("id").is(id).and("owner").is(owner)),
