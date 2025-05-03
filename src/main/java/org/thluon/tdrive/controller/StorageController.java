@@ -64,7 +64,7 @@ public class StorageController implements StorageAPI {
                       ResponseEntity.ok()
                               .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+i.getName()+".zip\"")
                               .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                              .body(reactiveFileService.streamFile(i.getId().toString())));
+                              .body(storageItemService.streamItem(i.getId(),myPrincipal.id())));
             });
   }
 
